@@ -9,6 +9,7 @@ import com.achteck.misc.util.StopWatch;
 import com.achteck.misc.util.StringIO2;
 import de.planet.citech.trainer.loader.IImageLoader;
 import de.planet.diss_leifert.types.ConfMatStreamUtil;
+import de.planet.diss_leifert.types.GraphViewer;
 import de.planet.diss_leifert.types.T2IConfig;
 import de.planet.diss_leifert.util.ConfMatUtil;
 import de.planet.imaging.types.IWDImage;
@@ -28,12 +29,17 @@ import de.uros.citlab.errorrate.util.HeatMapUtil;
 import de.uros.citlab.textalignment.HyphenationProperty;
 import de.uros.citlab.textalignment.TextAligner;
 import de.uros.citlab.textalignment.types.LineMatch;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.function.Predicate;
+
+import static de.planet.trainset_util.util.IOOps.listFilesAndDirs;
 
 
 public class ApplyATRandT2I extends FolderOrganizer implements Callable<Boolean> {
@@ -247,6 +253,11 @@ public class ApplyATRandT2I extends FolderOrganizer implements Callable<Boolean>
                 return new int[]{Math.min(actual[0], 10000), Math.min(actual[1], 10000)};
             }
         });
+        GraphViewer graphViewer = new GraphViewer();
+        graphViewer.setView(1, 1, 30, 50);
+        graphViewer.setOut(new File(file.getParentFile(), file.getName() + "_out.png/"));
+        textAligner.setFilter(graphViewer);
+
     }
 
     private static void sort(List<File> list) {
@@ -274,6 +285,28 @@ public class ApplyATRandT2I extends FolderOrganizer implements Callable<Boolean>
         });
     }
 
+    public static List<File> getFoldersLeave(File parentFolder) {
+        Collection<File> foldersExec = listFilesAndDirs(parentFolder, DirectoryFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+        foldersExec.removeIf(new Predicate<File>() {
+            public boolean test(File file) {
+                File[] var2 = file.listFiles();
+                int var3 = var2.length;
+
+                for (int var4 = 0; var4 < var3; ++var4) {
+                    File listFile = var2[var4];
+                    if (listFile.isDirectory()) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        });
+        LinkedList<File> files = new LinkedList(foldersExec);
+        Collections.sort(files);
+        return files;
+    }
+
 
     public void run() throws Exception {
         System.out.println("start run");
@@ -282,7 +315,7 @@ public class ApplyATRandT2I extends FolderOrganizer implements Callable<Boolean>
         File folderLines = getFolderLines();
         File folderXfiles = getFolderXFilesLA();
         File folderTextFiles = getFolderTextfiles();
-        List<File> foldersLeave = IOOps.getFoldersLeave(folderLines);
+        List<File> foldersLeave = getFoldersLeave(folderLines);
         Collections.sort(foldersLeave);
         if (!name.isEmpty()) {
             foldersLeave.removeIf(file -> !file.getName().contains(name));
@@ -435,7 +468,7 @@ public class ApplyATRandT2I extends FolderOrganizer implements Callable<Boolean>
                 + "-net icdar_2017_20_0_planet "
 //                + "-debug /home/gundram/devel/projects/debug/ "
 //                + "-config conf-0.0_dist-false_skipW-0.4_skipB-4.0_anyC-4.0_jumpB-null_hyp-null_hypProp-null_cert-MAX_size-3.json "
-                + "-config conf-0.0_dist-false_skipW-3.2_skipB-4.0_anyC-4.0_jumpB-4.0_hyp-null_hypProp-null_cert-MAX_size-3 "
+                + "-config conf-0.0_dist-false_skipW-1.2_skipB-4.0_anyC-4.0_jumpB-null_hyp-0.4_hypProp-null_cert-MAX_size-3 "
                 + "-batch false "
                 + "-overwrite true "
                 + "-debug true "

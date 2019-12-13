@@ -1,6 +1,7 @@
 package de.planet.diss_leifert.util;
 
 import com.achteck.misc.types.charmap.IntCharMap;
+import de.uros.citlab.confmat.CharMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ public class ConfMatUtil {
         de.uros.citlab.confmat.CharMap cmNew = new de.uros.citlab.confmat.CharMap();
         IntCharMap charMap = cm.getCharMap();
         int size = charMap.keySet().size();
+        cmNew.add(CharMap.NaC, 0);
         for (int i = 1; i < size; i++) {
             cmNew.add(charMap.get(i));
         }

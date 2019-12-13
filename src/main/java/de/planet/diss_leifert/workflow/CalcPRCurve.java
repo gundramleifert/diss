@@ -183,44 +183,6 @@ public class CalcPRCurve extends FolderOrganizer {
 //        }
     }
 
-    private static class DynMatImage implements PathCalculatorGraph.DynMatViewer {
-        private final File file;
-
-        public DynMatImage(File file) {
-            this.file = file;
-        }
-
-        @Override
-        public boolean callbackEnd(float[][] mat) {
-            try {
-                ImageIO.write(HeatMapUtil.getHeatMap(mat, 7), "png", file);
-            } catch (IOException e) {
-                Logger.getLogger(ApplyATRandT2I.class).log(Logger.WARN, "cannot save image " + file, e);
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public boolean callbackUpdate(double d, float[][] mat) {
-            return false;
-        }
-
-        @Override
-        public int[] getSize(int[] actual) {
-            return new int[]{Math.min(actual[0], 10000), Math.min(actual[1], 10000)};
-        }
-    }
-
-    private DynMatImage dynMatImage = null;
-
-//    public void addDynProgExtractor(ErrorModuleT2I module, final File file) {
-//        if (dynMatImage == null) {
-//            dynMatImage = new DynMatImage(new File("/tmp/img.png"));
-//        }
-//        module.setDynMatViewer(dynMatImage);
-//    }
-
     public static void filter(List<List<Line>> lineses, double confidence) {
         for (List<Line> linese : lineses) {
             linese.removeIf(line -> line.getText().isEmpty() || line.getConfidence() < confidence);
@@ -286,6 +248,16 @@ public class CalcPRCurve extends FolderOrganizer {
         @Override
         public Polygon getBaseline() {
             return polygon;
+        }
+
+        @Override
+        public Polygon getPolygon() {
+            return null;
+        }
+
+        @Override
+        public String getId() {
+            return null;
         }
 
         public double getConfidence() {

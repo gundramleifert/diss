@@ -205,6 +205,16 @@ public class CalcCER extends FolderOrganizer {
             return polygon;
         }
 
+        @Override
+        public Polygon getPolygon() {
+            return null;
+        }
+
+        @Override
+        public String getId() {
+            return null;
+        }
+
         public double getConfidence() {
             return confidence;
         }
